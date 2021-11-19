@@ -15,13 +15,28 @@ chat.addEventListener("submit", function (e) {
 });
 
 async function postNewMsg(user, text) {
-  // post to /poll a new message
-  // write code here
+  await fetch('/poll', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      text: document.querySelector('#text').value,
+      user: document.querySelector('#user').value
+    })
+  });
+  getNewMsgs();
 }
 
 async function getNewMsgs() {
-  // poll the server
-  // write code here
+  try {
+    const messages = await fetch('/poll');
+    const json = await messages.json();
+    allChat = [ ...json.msg ];
+    render();
+  } catch(e) {
+    console.log(e);
+  }
 }
 
 function render() {
@@ -37,5 +52,13 @@ function render() {
 const template = (user, msg) =>
   `<li class="collection-item"><span class="badge">${user}</span>${msg}</li>`;
 
-// make the first request
-getNewMsgs();
+let timeToMakeNextRequest = 0;
+async function rafTimer(time) {
+  if ( timeToMakeNextRequest <= time ) {
+    await getNewMsgs();
+    timeToMakeNextRequest = time + INTERVAL;
+  }
+  requestAnimationFrame(rafTimer);
+}
+
+requestAnimationFrame(rafTimer);

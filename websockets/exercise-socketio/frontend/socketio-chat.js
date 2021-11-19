@@ -5,6 +5,29 @@ const msgs = document.getElementById("msgs");
 const presence = document.getElementById("presence-indicator");
 let allChat = [];
 
+// window.WebSocket = null;
+
+const socket = io('http://localhost:8080');
+
+socket.on('connect', () => {
+  presence.innerHTML = '😍';
+  console.log('connected');
+});
+
+
+
+socket.on('disconnect', () => {
+  presence.innerHTML = '😖';
+  console.log('connected');
+});
+
+socket.on('msg:get', (payload) => {
+  allChat = payload.msg;
+  render();
+});
+
+
+
 /*
  *
  * Code goes here
@@ -23,6 +46,7 @@ async function postNewMsg(user, text) {
    * Code goes here
    *
    */
+  socket.emit('msg:post', { user , text });
 }
 
 function render() {

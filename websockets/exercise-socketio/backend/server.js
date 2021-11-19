@@ -19,6 +19,25 @@ const server = http.createServer((request, response) => {
   });
 });
 
+const io = new Server(server, {});
+
+io.on('connection', (socket) => {
+  console.log('connected', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('disconnected', socket.id);
+  })
+
+
+  socket.emit('msg:get', { msg: getMsgs() });
+
+  socket.on('msg:post', (payload) => {
+    console.log(payload);
+    msg.push(payload);
+    io.emit('msg:get', { msg: getMsgs() });
+  })
+});
+
 /*
  *
  * Code goes here
